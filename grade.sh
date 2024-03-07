@@ -41,11 +41,22 @@ java -cp $CPATH org.junit.runner.JUnitCore TestListExamples > junit-output.txt
 testline=$(cat junit-output.txt | tail -n 2 | head -n 1)
 echo "$testline"
 
-if [ $(grep -o "OK" junit-output.txt | tail -n 2 | head -n 1) == "OK" ]
+# IF ALL TESTS PASS
+if [[ $(grep -o "OK" junit-output.txt) == "OK" ]]
 then
     tests=$(echo "$testline" | awk -F'[(]' '{print $2}')
     echo "$tests"
     # passed=$(cat "$testline" | awk -F'[(]' '{print $2}')
     echo "Perfect!"
     # echo "$passed"
+fi
+
+# IF NOT ALL TESTS PASS
+if [[ $(grep -o "Failures:" junit-output.txt) == "Failures:" ]]
+then
+    failures=$(echo "$testline" | grep -oP 'Failures: \K\d+')
+    tests_run=$(echo "$output" | grep -oP 'Tests run: \K\d+')
+
+    echo "Number of Failures: $failures"
+    echo "Number of Tests run: $tests_run"
 fi
