@@ -23,7 +23,7 @@ fi
 # 4. Compile tests and student's code from grading-area/
 
 cd grading-area/
-CPATH=".;../lib/hamcrest-core-1.3.jar;../lib/junit-4.13.2.jar"
+CPATH=".:../lib/hamcrest-core-1.3.jar:../lib/junit-4.13.2.jar"
 javac -cp $CPATH *.java
 
 if [ $? -ne 0 ]
@@ -47,16 +47,21 @@ then
     tests=$(echo "$testline" | awk -F'[(]' '{print $2}')
     echo "$tests"
     # passed=$(cat "$testline" | awk -F'[(]' '{print $2}')
-    echo "Perfect!"
+    echo "Perfect! 100%"
     # echo "$passed"
 fi
 
 # IF NOT ALL TESTS PASS
 if [[ $(grep -o "Failures:" junit-output.txt) == "Failures:" ]]
 then
-    failures=$(echo "$testline" | grep -oP 'Failures: \K\d+')
-    tests_run=$(echo "$output" | grep -oP 'Tests run: \K\d+')
+    failures=$(echo "$testline" | grep -o 'Failures: [0-9]*' | awk '{print $2}')
+    tests_run=$(echo "$testline" | grep -o 'Tests run: [0-9]*' | awk '{print $3}')
 
-    echo "Number of Failures: $failures"
-    echo "Number of Tests run: $tests_run"
+    successes=$((tests_run - failures))
+
+    # Calculate the grade in fraction format
+    grade="$successes/$tests_run"
+
+    # Echo the message
+    echo "Grade: $grade"
 fi
